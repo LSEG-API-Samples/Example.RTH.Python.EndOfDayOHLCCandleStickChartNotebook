@@ -339,7 +339,7 @@ ax.plot(dfPlot.index, dfPlot['Last'])
 plt.show()
 ```
 Sample line graph for Last price from 01-01-2018 to 05-08-2019.
-![linegraph1](./images/linegraph1.jpg)
+![linegraph1](./images/linegraph1.JPG)
 
 ### Plot the Daily Closing Price and Stock Volume
 
@@ -369,10 +369,10 @@ top.set_ylabel('Last Price')
 bottom.set_ylabel('Volume')
 ```
 It generate bar graph for dialy volume under line graph as below sample graph.
-![linegraphwithvolume](./images/linegraphwithvolume1.jpg)
+![linegraphwithvolume](./images/linegraphwithvolume1.JPG)
 
 You can use zoom and pan button from tool bar under the graph to see the graph for specific period of time. Below is a graph when using zoom button.
-![linegraphwithvolumezoom](./images/linegraphwithvolumezoom1.jpg)
+![linegraphwithvolumezoom](./images/linegraphwithvolumezoom1.JPG)
 
 ### Generate a Histogram of the Daily Closing Price
 
@@ -390,7 +390,7 @@ plt.show()
 ```
 
 Below is histogram generate by distplot function.
-![histogram1](./images/histogram1.jpg)
+![histogram1](./images/histogram1.JPG)
 
 ## Plot the CandleStick OHLC Chart
 
