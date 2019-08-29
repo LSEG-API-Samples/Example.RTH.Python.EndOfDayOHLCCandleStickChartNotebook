@@ -350,23 +350,29 @@ import matplotlib.pyplot as plt
 
 dfPlot=df[['Last','Volume']].loc['2018-01-01':datetime.now(),:]
 
+#top graph for daily close price and bottom one is bar graph for stock volumen.
+#Set figure size
 fig = plt.figure(figsize=(9,8),dpi=100)
-top = plt.subplot2grid((4,4), (0, 0), rowspan=3, colspan=4)
-top.grid(True)
 
+# Set subplot size to 4 row x4 col top graph start from 0,0 to row 3 and last low is for volume
+top = plt.subplot2grid((4,4), (0, 0), rowspan=3, colspan=4)
+top.plot(dfPlot.index, dfPlot['Last'], label='Last price')
+top.grid(True)
+titletxt='Last price for '+ricname
+top.set_title(titletxt)
+top.axes.get_xaxis().set_visible(False)
+#set legend to upper left(2)
+plt.legend(loc=2)
+
+
+#bottom graph(volume) start from row 3, col 0 cover size for 1 last row with 4 column.
 #set sharex to top so we can zoom or pan both graph
 bottom = plt.subplot2grid((4,4), (3,0), rowspan=1, colspan=4,sharex=top)
 bottom.grid(True)
-
-#top graph for daily close price and bottom one is bar graph for stock volumen.
-top.plot(dfPlot.index, dfPlot['Last']) 
 bottom.bar(dfPlot.index, dfPlot['Volume']) 
- 
-# set the labels
-top.axes.get_xaxis().set_visible(False)
-top.set_title(ricname)
-top.set_ylabel('Last Price')
-bottom.set_ylabel('Volume')
+plt.title('Trade Volume')
+
+plt.subplots_adjust(hspace=0.75)
 ```
 It generate bar graph for dialy volume under line graph as below sample graph.
 ![linegraphwithvolume](./images/linegraphwithvolume1.JPG)
@@ -396,39 +402,34 @@ Below is histogram generate by distplot function.
 
 Next step we will generate a CandleStick using method candlestick_ohlc from mpl_finance library. Please note that from details in this [link](https://matplotlib.org/api/finance_api.html), module matplotlib.finance is deprecated in 2.0 and has been moved to a module called mpl_finance. It's still working when we have matplotlib version 2.1.2 but this may stop working in any future releases, however, you still be able to use mpl_finance module to use this feature. Note that mpl_finance is no longer maintained.  
 
-To generate the graph we need to pass a dataframe column which contain Open, High, Low and Last/Close price to the method. And there are some additional steps to configuring a tick locating and formatting before plotting the graph. Hence we will add these steps to a new function instead so it can do formatting and generating a graph and then we can re-use this function to plot a moving average later.
+To generate the graph we need to pass a dataframe column which contain Open, High, Low and Close price to the method. And there are some additional steps to configuring a tick locating and formatting before plotting the graph. Hence we will add these steps to a new function instead so it can do formatting and generating a graph and then we can re-use this function to plot a moving average later. Note that below function created based on the [example codes](https://matplotlib.org/examples/pylab_examples/finance_demo.html) provided on [Matplotlib page](https://matplotlib.org).
 
 ```python
 import numpy as np
 from matplotlib.dates import DateFormatter, WeekdayLocator,DayLocator, MONDAY
 import matplotlib.dates as dates
 from mpl_finance import candlestick_ohlc
-
+ 
 def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
     
-    mondays = WeekdayLocator(MONDAY)    
-    alldays = DayLocator()        
-    dayFormatter = DateFormatter('%d') 
+    mondays = WeekdayLocator(MONDAY)    # major ticks on the mondays
+    alldays = DayLocator()              # minor ticks on the days
+    weekFormatter = DateFormatter('%b %d')  # e.g., Jan 12
+    dayFormatter = DateFormatter('%d')      # e.g., 12
     
     plotdat = dat.loc[:,["Open", "High", "Low", "Last"]]
     stick=1
-
-    fig = plt.figure(figsize=(10,8),dpi=100)
-    top=plt.subplot2grid((4,4), (0, 0), rowspan=3, colspan=4)
-    bottom = plt.subplot2grid((4,4), (3,0), rowspan=1, colspan=4,sharex=top)
-
-    fig.subplots_adjust(bottom=0.2)
     
-    if plotdat.index[-1] - plotdat.index[0] < pd.Timedelta('366 days'):
-        weekFormatter = DateFormatter('%b %d')  # e.g., Jan 12
-        top.xaxis.set_major_locator(mondays)
-        top.xaxis.set_minor_locator(alldays)
-    else:
-        weekFormatter = DateFormatter('%b %d, %Y')
-        
-    top.xaxis.set_major_formatter(weekFormatter)
-    top.set_title(item_name)
-    bottom.grid(True)
+    #Set figure size
+    fig = plt.figure(figsize=(10,8),dpi=100)
+    top=plt.subplot2grid((5,4), (0, 0), rowspan=4, colspan=4)  
+    fig.subplots_adjust(bottom=0.2)
+    top.xaxis.set_major_locator(mondays)
+    top.xaxis.set_minor_locator(alldays)
+    top.xaxis.set_major_formatter(weekFormatter)    
+    titletxt='CandleStick Chart for '+item_name
+    top.set_title(titletxt)
+
     
     # Create the candelstick chart
     candlestick_ohlc(top, list(zip(list(dates.date2num(plotdat.index.tolist())), plotdat["Open"].tolist(), plotdat["High"].tolist(),
@@ -444,16 +445,19 @@ def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
     top.xaxis_date()
     top.autoscale_view()
     top.grid(True)
-    top.set_ylabel("Last Price")
-    plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
     top.axes.get_xaxis().set_visible(False)
-   
+    
+    bottom = plt.subplot2grid((5,4), (4,0), rowspan=1, colspan=4,sharex=top)
     bottom.bar(dat.index, dat['Volume'])
-    bottom.set_ylabel('Volume')
+    bottom.grid(True)
+    plt.title('Trade Volume')
+    plt.subplots_adjust(hspace=0.75)
+    plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
     plt.show()
 ```
 We need to call pandas_candlestick_ohlc function and pass a dataframe from previous step to generate a CandleStick chart.
 Since we add __%mathplotlib notebook__ to the codes, it will show toolbar under the chart so you can zoom and pan the CandleStick chart. And you can also change start and end date in df_adjustOHLC.loc[] to see a graph in specific peroid.
+![toolbar](./images/graphtoolbar.JPG)
 
 ```python
 %matplotlib notebook
@@ -461,11 +465,11 @@ Since we add __%mathplotlib notebook__ to the codes, it will show toolbar under 
 dfPlot=df.loc['2018-01-01':datetime.now(),:]
 pandas_candlestick_ohlc(dfPlot,item_name=ricname)
 ```
-Below is a sample CandleStick Chart with toolbar.
+It will shows the following CandleStick Chart.
 ![candlestick1](./images/candlestickwithvolume1.JPG)
 
-Zoom the graph.
-![candlestickzoom1](./images/candlestickwithvolumezoom1.JPG)
+CandleStick Chart from a shorter peroid.
+![candlestickzoom1](./images/candlestickwithvolume2.JPG)
 
 From a candlestick chart(zoom the graph), a green candlestick indicates a day where the closing price was higher than the open(Gain), while a red candlestick indicates a day where the open was higher than the close (Loss). The wicks indicate the high and the low, and the body the open and close (hue is used to determine which end of the body is open and which the close). You can change the color in pandas_candlestick_ohlc function we have created. And as I said previously, a user can use Candlestick charts for technical analysis and use them to make trading decisions, depending on the shape, color, and position of the candles. We will not cover a technical analysis in this example.
 
@@ -516,4 +520,5 @@ This example provides a step to use Python to retrieve an End of Day Time Series
 * [CandleStick chart what is it?](https://www.investopedia.com/trading/candlestick-charting-what-is-it/)
 * [What Is a Moving Average Article.](https://www.investopedia.com/terms/m/movingaverage.asp)
 * [Seborn Tutorial](https://seaborn.pydata.org/tutorial/distributions.html)
+* [Matplotlib Examples](https://matplotlib.org/examples/pylab_examples/finance_demo.html)
 
