@@ -377,7 +377,12 @@ plt.subplots_adjust(hspace=0.75)
 It generate bar graph for dialy volume under line graph as below sample graph.
 ![linegraphwithvolume](./images/linegraphwithvolume1.JPG)
 
-You can use zoom and pan button from tool bar under the graph to see the graph for specific period of time. Below is a graph when using zoom button.
+You can use zoom and pan button from tool bar under the graph to see the graph for specific period of time.
+
+![toolbar](./images/graphtoolbar.JPG)
+
+Using zoom button to zoom the graph. The volume will be adjusted automatically because we set **shrex=top** in subplot2grid function. 
+
 ![linegraphwithvolumezoom](./images/linegraphwithvolumezoom1.JPG)
 
 ### Generate a Histogram of the Daily Closing Price
@@ -457,7 +462,7 @@ def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
 ```
 We need to call pandas_candlestick_ohlc function and pass a dataframe from previous step to generate a CandleStick chart.
 Since we add __%mathplotlib notebook__ to the codes, it will show toolbar under the chart so you can zoom and pan the CandleStick chart. And you can also change start and end date in df_adjustOHLC.loc[] to see a graph in specific peroid.
-![toolbar](./images/graphtoolbar.JPG)
+
 
 ```python
 %matplotlib notebook
