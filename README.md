@@ -4,8 +4,7 @@
 
 This example demonstrates how to use python to request daily end of day data and generate basic graphs and CandleSticks chart for trading analysis. Basically, the [Japanese candlestick chart](https://www.investopedia.com/trading/candlestick-charting-what-is-it/) commonly used to illustrate movements in the price of a financial instrument over time. It's popular in finance and some strategies in technical analysis use them to make trading decisions, depending on the shape, color, and position of the candles.
 
-[Thomson Reuters Tick History (TRTH)](https://developers.refinitiv.com/thomson-reuters-tick-history-trth/thomson-reuters-tick-history-trth-rest-api) is an Internet-hosted product on the DataScope Select platform that provides a REST API for unparalleled access to historical high-frequency data across global asset classes dating to 1996. Python developer can use On-demand request to retrieve End of Day data and then they can use the time series tools available in Python or Pandas to works with the data and generate the candlestick chart and calculate a moving average from the time series data. Note that this example will not cover technical analysis topics.
-
+[Refinitiv Tick History (RTH)](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api) is an Internet-hosted product on the DataScope Select platform that provides a REST API for unparalleled access to historical high-frequency data across global asset classes dating to 1996. Python developer can use On-demand request to retrieve End of Day data and then they can use the time series tools available in Python or Pandas to works with the data and generate the candlestick chart and calculate a moving average from the time series data. Note that this example will not cover technical analysis topics.
 
 ## Packages Required
 
@@ -35,7 +34,7 @@ There are three main steps in this example, starting from using the REST API ret
 
 ### Get Access Token from DSS Server
 
-Referring to the tutorial from [TRTH REST API tutorial](https://developers.refinitiv.com/thomson-reuters-tick-history-trth/thomson-reuters-tick-history-trth-rest-api/learning?content=8687&type=learning_material_item), to get the access token, we have to send HTTP post message to below endpoint and it needs to send the DSS Username and Password in the request body. 
+Referring to the tutorial from [RTH REST API tutorial](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials), to get the access token, we have to send HTTP post message to below endpoint and it needs to send the DSS Username and Password in the request body.
 
 * Endpoint:
 
@@ -74,7 +73,6 @@ If there is no error happen, it should receive HTTP status code 200. Then we nee
 
 The following snippet codes are function GetAuthenticationToken we used to get the access token from the server. It uses AsyncHTTPClient from tornado httpclient to send an HTTP request to TRTH server.
 
-
 ```python
 from tornado import httpclient, ioloop
 import json
@@ -108,7 +106,7 @@ async def GetAuthenticationToken(username, password):
 
 ### Retrieve End of Day Time Series data from TRTH Server
 
-This example use step explains in the [REST API Tutorial 7: On Demand End of Day extraction](https://developers.refinitiv.com/thomson-reuters-tick-history-trth/thomson-reuters-tick-history-trth-rest-api/learning?content=11268&type=learning_material_item) to send a request and process response from the server. Below is ExtractRaw function we create to retrieve the TimeSeries data. 
+This example use step explains in the [REST API Tutorial 7: On Demand End of Day extraction](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials) to send a request and process response from the server. Below is ExtractRaw function we create to retrieve the TimeSeries data.
 
 ```python
 from tornado import httpclient, ioloop
@@ -520,7 +518,7 @@ This example provides a step to use Python to retrieve an End of Day Time Series
 
 ## References
 
-* [Thomson Reuters Tick History (TRTH)](https://developers.refinitiv.com/thomson-reuters-tick-history-trth/thomson-reuters-tick-history-trth-rest-api)
+* [Refinitiv Tick History (RTH)](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api)
 * [Tornado Web Framework](https://www.tornadoweb.org/en/stable/guide.html)
 * [CandleStick chart what is it?](https://www.investopedia.com/trading/candlestick-charting-what-is-it/)
 * [What Is a Moving Average Article.](https://www.investopedia.com/terms/m/movingaverage.asp)
