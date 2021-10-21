@@ -39,7 +39,7 @@ Referring to the tutorial from [RTH REST API tutorial](https://developers.refini
 * Endpoint:
 
 ```
-https://hosted.datascopeapi.reuters.com/RestApi/v1/Authentication/RequestToken
+https://selectapi.datascope.refinitiv.com/RestApi/v1/Authentication/RequestToken
 ```
 
 * Method: POST
@@ -66,7 +66,7 @@ If there is no error happen, it should receive HTTP status code 200. Then we nee
 
 ```json
 {
-  "@odata.context": "https://hosted.datascopeapi.reuters.com/RestApi/v1/$metadata#Edm.String",
+  "@odata.context": "https://selectapi.datascope.refinitiv.com/RestApi/v1/$metadata#Edm.String",
   "value": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX... XXXXXXXXXXXXXXXXXXXXX"
 }
 ```
@@ -85,7 +85,7 @@ async def GetAuthenticationToken(username, password):
     http_client = httpclient.AsyncHTTPClient()
     try:
 
-        endpoint = "https://hosted.datascopeapi.reuters.com/RestApi/v1/Authentication/RequestToken"
+        endpoint = "https://selectapi.datascope.refinitiv.com/RestApi/v1/Authentication/RequestToken"
         _header = {'Prefer': 'respond-async', 'Content-Type': 'application/json; odata.metadata=minimal'}
         _data = {
             'Credentials': {
@@ -114,7 +114,7 @@ import asyncio
 import json
 async def ExtractRaw(token, json_payload):
     
-    _extractRawURL = "https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/ExtractRaw"
+    _extractRawURL = "https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/ExtractRaw"
     
     # Setup Request Header
     _header = {'Prefer': 'respond-async, wait=5', 'Content-Type': 'application/json; odata.metadata=minimal',
@@ -185,7 +185,7 @@ async def ExtractRaw(token, json_payload):
         print("======================================\n")
 
     # Request should be completed then Get the result by passing jobID to RAWExtractionResults URL
-    _getResultURL = str("https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/RawExtractionResults(\'" + _jobID + "\')/$value")
+    _getResultURL = str("https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/RawExtractionResults(\'" + _jobID + "\')/$value")
     print("\nRetrieve data from " + _getResultURL)
     response = await http_client.fetch(_getResultURL, method='GET',
                                        headers=_header)
@@ -213,7 +213,7 @@ async def main():
     print("Request Token=", reqToken)
     eodRequest = {
         "ExtractionRequest": {
-            "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.ElektronTimeseriesExtractionRequest",
+            "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.ElektronTimeseriesExtractionRequest",
             "ContentFieldNames": [
                 "Instrument ID",
                 "Open",
@@ -224,7 +224,7 @@ async def main():
                 "Trade Date"
             ],
             "IdentifierList": {
-                "@odata.type": "#ThomsonReuters.Dss.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
+                "@odata.type": "#DataScope.Select.Api.Extractions.ExtractionRequests.InstrumentIdentifierList",
                 "InstrumentIdentifiers": [
                     {"Identifier": ricname, "IdentifierType": "Ric"}
                 ]
@@ -252,8 +252,8 @@ Send Login request
 Request Token= XXXX
 
 Extraction Request Sent
-Location= https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
-Get query status from  https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
+Location= https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
+Get query status from  https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
 Status is completed the JobID is 0x06c4XXfdc50e7e6
 
 Notes:
@@ -275,7 +275,7 @@ Quota Message: INFO: Tick History Cash Quota Count Before Extraction: 15758; Ins
 ======================================
 
 
-Retrieve data from https://hosted.datascopeapi.reuters.com/RestApi/v1/Extractions/RawExtractionResults('0x06c45XXXc50e7e6')/$value
+Retrieve data from https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/RawExtractionResults('0x06c45XXXc50e7e6')/$value
 Retrieve data completed
 ```
 We are now getting the End of Day data and then we will create a new dataframe by copy columns Open, High, Low, Last from original dataframe returned from TRTH server and then pass it to our function to generate graph/chart. We need to verify the data by printing head and tail of the dataframe to see the data. And next step we will use the data to plotting graphs and general a CandleStick Chart.
