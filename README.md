@@ -4,7 +4,8 @@
 
 This example demonstrates how to use python to request daily end of day data and generate basic graphs and CandleSticks chart for trading analysis. Basically, the [Japanese candlestick chart](https://www.investopedia.com/trading/candlestick-charting-what-is-it/) commonly used to illustrate movements in the price of a financial instrument over time. It's popular in finance and some strategies in technical analysis use them to make trading decisions, depending on the shape, color, and position of the candles.
 
-[Refinitiv Tick History (RTH)](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api) is an Internet-hosted product on the DataScope Select platform that provides a REST API for unparalleled access to historical high-frequency data across global asset classes dating to 1996. Python developer can use On-demand request to retrieve End of Day data and then they can use the time series tools available in Python or Pandas to works with the data and generate the candlestick chart and calculate a moving average from the time series data. Note that this example will not cover technical analysis topics.
+[LSEG Tick History](https://developers.lseg.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api) is an Internet-hosted product on the DataScope Select platform that provides a REST API for unparalleled access to historical high-frequency data across global asset classes dating to 1996. Python developer can use On-demand request to retrieve End of Day data and then they can use the time series tools available in Python or Pandas to works with the data and generate the candlestick chart and calculate a moving average from the time series data. Note that this example will not cover technical analysis topics.
+
 
 ## Packages Required
 
@@ -20,7 +21,7 @@ import seaborn as sns
 from datetime import datetime
 import numpy as np
 from matplotlib.dates import DateFormatter, WeekdayLocator,DayLocator, MONDAY
-from mpl_finance import candlestick_ohlc
+from mplfinance.original_flavor import candlestick_ohlc
 ```
 
 ## Implementation 
@@ -34,7 +35,7 @@ There are three main steps in this example, starting from using the REST API ret
 
 ### Get Access Token from DSS Server
 
-Referring to the tutorial from [RTH REST API tutorial](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials), to get the access token, we have to send HTTP post message to below endpoint and it needs to send the DSS Username and Password in the request body.
+Referring to the tutorial from [Tick History REST API tutorial]https://developers.lseg.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials), to get the access token, we have to send HTTP post message to below endpoint and it needs to send the DSS Username and Password in the request body. 
 
 * Endpoint:
 
@@ -71,7 +72,8 @@ If there is no error happen, it should receive HTTP status code 200. Then we nee
 }
 ```
 
-The following snippet codes are function GetAuthenticationToken we used to get the access token from the server. It uses AsyncHTTPClient from tornado httpclient to send an HTTP request to TRTH server.
+The following snippet codes are function GetAuthenticationToken we used to get the access token from the server. It uses AsyncHTTPClient from tornado httpclient to send an HTTP request to the LSEG Tick History server.
+
 
 ```python
 from tornado import httpclient, ioloop
@@ -104,9 +106,9 @@ async def GetAuthenticationToken(username, password):
         return json.loads(response.body)["value"]
 ```
 
-### Retrieve End of Day Time Series data from TRTH Server
+### Retrieve End of Day Time Series data from LSEG Tick History Server
 
-This example use step explains in the [REST API Tutorial 7: On Demand End of Day extraction](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials) to send a request and process response from the server. Below is ExtractRaw function we create to retrieve the TimeSeries data.
+This example use step explains in the [REST API Tutorial 7: On Demand End of Day extraction](https://developers.lseg.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api/tutorials#rest-api-tutorial-7-on-demand-end-of-day-extraction) to send a request and process response from the server. Below is ExtractRaw function we create to retrieve the TimeSeries data. 
 
 ```python
 from tornado import httpclient, ioloop
@@ -194,7 +196,6 @@ async def ExtractRaw(token, json_payload):
     assert isinstance(df, pd.DataFrame)
     print("Retrieve data completed")
     return df
-
 ```
 There is the main function user can pass JSON request message to the method. Below is snippet codes for the main function and eodRequest contains the json request body. We need Trade Date, Open, High, Low and Last/Close to generate the CandleStick chart. You have to change dss_Username and dss_Password to your DSS username and password. Also change ricname to the RIC you are interesting.
 
@@ -252,36 +253,39 @@ Send Login request
 Request Token= XXXX
 
 Extraction Request Sent
-Location= https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
-Get query status from  https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/ExtractRawResult(ExtractionId='0x06c4XXfdc50e7e6')
-Status is completed the JobID is 0x06c4XXfdc50e7e6
+Status is completed the JobID is 0x09494a95e78adb0d
 
 Notes:
 ======================================
-Extraction Services Version 13.1.40889 (ec84d57d2aa3), Built Aug  9 2019 18:16:12
-Processing started at 27-08-2019 13:38:15.
-User ID: 9XXXX
-Extraction ID: 2000000096539139
-Schedule: 0x06c4XXdc50e7e6 (ID = 0x0000000000000000)
-Input List (1 items):  (ID = 0x06c450XXc50e7e6) Created: 27-08-2019 13:38:15 Last Modified: 27-08-2019 13:38:15
-Report Template (7 fields): _OnD_0x06c45XX50e7e6 (ID = 0x06c45XX80e7e6) Created: 27-08-2019 13:38:11 Last Modified: 27-08-2019 13:38:11
-Schedule dispatched via message queue (0x06c4XX50e7e6)
-Schedule Time: 27-08-2019 13:38:12
-Timeseries Date Range: 01-01-1996 to 27-08-2019
-Processing completed successfully at 27-08-2019 13:38:19, taking 4.535 Secs.
-Extraction finished at 27-08-2019 06:38:19 UTC, with servers: x03q14, ETS (0.8 secs), QSHC20 (0.0 secs), QSSHA1 (0.0 secs)
-Quota Message: INFO: Tick History Cash Quota Count Before Extraction: 15758; Instruments Approved for Extraction: 1; Tick History Cash Quota Count After Extraction: 15758, 3151.6% of Limit; Tick History Cash Quota Limit: 500
+Extraction Services Version 18.3.1.47975 (ddb84d566a5a), Built Dec  2 2024 02:54:07
+User has overridden estimates broker entitlements.
+Processing started at 02/20/2025 PM 04:31:36.
+User ID: 9008895
+Extraction ID: 2000000868399755
+Correlation ID: CiD/9008895/AAAAAA.09494a95e77adb0d/RA
+Schedule: 0x09494a95e78adb0d (ID = 0x0000000000000000)
+Input List (1 items):  (ID = 0x09494a95e78adb0d) Created: 02/20/2025 PM 04:31:36 Last Modified: 02/20/2025 PM 04:31:36
+Report Template (7 fields): _OnD_0x09494a95e78adb0d (ID = 0x09494a95e79adb0d) Created: 02/20/2025 PM 04:31:34 Last Modified: 02/20/2025 PM 04:31:34
+Schedule dispatched via message queue (0x09494a95e78adb0d)
+Schedule Time: 02/20/2025 PM 04:31:34
+Timeseries Date Range: 01/01/1996 to 02/20/2025
+Processing completed successfully at 02/20/2025 PM 04:31:37, taking 1.717 Secs.
+Extraction finished at 02/20/2025 AM 09:31:37 UTC, with servers: xc64sd0dq02, ETS (0.4 secs), QSDHA1 (0.0 secs), QSHC09 (0.0 secs)
+Quota Message: INFO: Tick History Cash Quota Count Before Extraction: 51830; Instruments Approved for Extraction: 1; Tick History Cash Quota Count After Extraction: 51830, 10366% of Limit; Tick History Cash Quota Limit: 500
+Writing RIC maintenance report.
+
+Identifier,IdentType,Source,RIC,RecordDate,MaintType,OldValue,NewValue,Factor,FactorType
 
 ======================================
 
 
-Retrieve data from https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/RawExtractionResults('0x06c45XXXc50e7e6')/$value
+Retrieve data from https://selectapi.datascope.refinitiv.com/RestApi/v1/Extractions/RawExtractionResults('0x09494a95e78adb0d')/$value
 Retrieve data completed
 ```
-We are now getting the End of Day data and then we will create a new dataframe by copy columns Open, High, Low, Last from original dataframe returned from TRTH server and then pass it to our function to generate graph/chart. We need to verify the data by printing head and tail of the dataframe to see the data. And next step we will use the data to plotting graphs and general a CandleStick Chart.
+We are now getting the End of Day data and then we will create a new dataframe by copy columns Open, High, Low, Last from original dataframe returned from Tick History server and then pass it to our function to generate graph/chart. We need to verify the data by printing head and tail of the dataframe to see the data. And the next step we will use the data to plotting graphs and general a CandleStick Chart.
 
 ```python
-%matplotlib notebook
+%matplotlib ipympl
 df = dataframe[['Open', 'High', 'Low','Last','Volume']].copy()
 print(len(df.index))
 print(df.head(10))
@@ -289,6 +293,7 @@ print(df.tail(10))
 ```
 Sample Output
 ```bash
+7332
               Open    High     Low     Last    Volume
 Trade Date                                           
 1996-01-02  87.875  89.750  87.375  89.7500   3611200
@@ -301,18 +306,18 @@ Trade Date
 1996-01-11  83.500  86.875  83.125  86.6250   7288500
 1996-01-12  86.500  86.875  83.875  85.7500   5034000
 1996-01-15  85.875  85.875  81.875  82.5000   5285700
-                Open      High      Low    Last    Volume
-Trade Date                                               
-2019-08-13  136.0500  138.8000  135.000  138.60  25496593
-2019-08-14  136.3600  136.9200  133.670  133.98  32527251
-2019-08-15  134.3900  134.5800  132.250  133.68  28125416
-2019-08-16  134.8800  136.4600  134.720  136.13  25026151
-2019-08-19  137.8550  138.5500  136.885  138.41  24370543
-2019-08-20  138.2100  138.7100  137.240  137.26  21188998
-2019-08-21  138.5500  139.4935  138.000  138.79  14982314
-2019-08-22  138.6600  139.2000  136.290  137.78  18709662
-2019-08-23  137.1897  138.3500  132.800  133.39  38515386
-2019-08-26  134.9900  135.5600  133.900  135.45  20325271
+              Open      High       Low    Last    Volume
+Trade Date                                              
+2025-02-05  412.35  413.8270  410.4000  413.29  16336188
+2025-02-06  414.00  418.2000  414.0000  415.82  16309755
+2025-02-07  416.48  418.6500  408.1000  409.75  22886844
+2025-02-10  413.71  415.4624  410.9200  412.22  20817919
+2025-02-11  409.64  412.4900  409.3000  411.44  18140592
+2025-02-12  407.21  410.7500  404.3673  409.04  19121734
+2025-02-13  407.00  411.0000  406.3600  410.54  23891731
+2025-02-14  407.79  408.9100  405.8800  408.43  22758464
+2025-02-18  408.00  410.5970  406.5000  409.64  21423051
+2025-02-19  407.88  415.4900  407.6500  414.77  24114197
 ```
 ## Visualizing Stock Data
 
@@ -323,7 +328,7 @@ We can create a simple line graph to compare open and close price using the foll
 ```python
 import matplotlib.pyplot as plt
 
-%matplotlib notebook
+%matplotlib ipympl
 
 fig = plt.figure(figsize=(9,8),dpi=100)
 ax = plt.subplot2grid((3,3), (0, 0), rowspan=3, colspan=3)
@@ -332,7 +337,7 @@ ax.set_title(titlename)
 ax.set_xlabel('Year')
 ax.set_ylabel('Last Price')
 ax.grid(True)
-dfPlot=df.loc['2018-01-01':'2019-08-05',:]
+dfPlot=df.loc['2023-01-01':'2024-08-05',:]
 ax.plot(dfPlot.index, dfPlot['Last']) 
 plt.show()
 ```
@@ -341,12 +346,12 @@ Sample line graph for Last price from 01-01-2018 to 05-08-2019.
 
 ### Plot the Daily Closing Price and Stock Volume
 
-It may useful to review a trading volume to spot for spikes in trading. We can add a bar chart under the line graph for a daily close price as a subplot to indicate the volume. I will shorten a period of time to display data from 2018 instead. You can change it to any period of time you are interesting.
+It may useful to review a trading volume to spot for spikes in trading. We can add a bar chart under the line graph for a daily close price as a subplot to indicate the volume. I will shorten a period of time to display data from 2024 instead. You can change it to any period of time you are interesting.
 
 ```python
 import matplotlib.pyplot as plt
 
-dfPlot=df[['Last','Volume']].loc['2018-01-01':datetime.now(),:]
+dfPlot=df[['Last','Volume']].loc['2024-01-01':datetime.now(),:]
 
 #top graph for daily close price and bottom one is bar graph for stock volumen.
 #Set figure size
@@ -385,16 +390,22 @@ Using zoom button to zoom the graph. The volume will be adjusted automatically b
 
 ### Generate a Histogram of the Daily Closing Price
 
-A histogram might be useful to help review daily closing prices over time to see the spread or volatility, and also the type of distribution. We use the seaborn distplot method to plot the graph.
+A histogram might be useful to help review daily closing prices over time to see the spread or volatility, and also the type of distribution. We use the seaborn histplot method to plot the graph.
 
 ```
 import seaborn as sns
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(9,8),dpi=100)
-dfPlot=df[['Last','Volume']].loc['2018-01-01':datetime.now(),:]
-graph=sns.distplot(dfPlot['Last'].dropna(), bins=50, color='green')
-graph.set_title(ricname)
+dfPlot=df[['Last','Volume']].loc['2023-01-01':datetime.now(),:]
+#graph=sns.distplot(dfPlot['Last'].dropna(), bins=50, color='green')
+graph=sns.histplot(dfPlot['Last'].dropna(), 
+                   bins=50, 
+                   color='green',
+                   kde=True,
+                   stat="density", 
+                   kde_kws=dict(cut=3))
+graph.set(title=ricname)
 plt.show()
 ```
 
@@ -408,11 +419,9 @@ Next step we will generate a CandleStick using method candlestick_ohlc from mpl_
 To generate the graph we need to pass a dataframe column which contain Open, High, Low and Close price to the method. And there are some additional steps to configuring a tick locating and formatting before plotting the graph. Hence we will add these steps to a new function instead so it can do formatting and generating a graph and then we can re-use this function to plot a moving average later. Note that below function created based on the [example codes](https://matplotlib.org/examples/pylab_examples/finance_demo.html) provided on [Matplotlib page](https://matplotlib.org).
 
 ```python
-import numpy as np
 from matplotlib.dates import DateFormatter, WeekdayLocator,DayLocator, MONDAY
-import matplotlib.dates as dates
-from mpl_finance import candlestick_ohlc
- 
+from mplfinance.original_flavor import candlestick_ohlc
+
 def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
     
     mondays = WeekdayLocator(MONDAY)    # major ticks on the mondays
@@ -427,6 +436,8 @@ def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
     fig = plt.figure(figsize=(10,8),dpi=100)
     top=plt.subplot2grid((5,4), (0, 0), rowspan=4, colspan=4)  
     fig.subplots_adjust(bottom=0.2)
+    mondays.MAXTICKS = 3000
+    alldays.MAXTICKS = 3000
     top.xaxis.set_major_locator(mondays)
     top.xaxis.set_minor_locator(alldays)
     top.xaxis.set_major_formatter(weekFormatter)    
@@ -445,7 +456,7 @@ def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
             otherseries = [otherseries]
         dat.loc[:,otherseries].plot(ax = top, lw = 1.3, grid = True)
  
-    top.xaxis_date()
+    #top.xaxis_date()
     top.autoscale_view()
     top.grid(True)
     top.axes.get_xaxis().set_visible(False)
@@ -459,13 +470,13 @@ def pandas_candlestick_ohlc(dat, otherseries = None,item_name=None):
     plt.show()
 ```
 We need to call pandas_candlestick_ohlc function and pass a dataframe from previous step to generate a CandleStick chart.
-Since we add __%mathplotlib notebook__ to the codes, it will show toolbar under the chart so you can zoom and pan the CandleStick chart. And you can also change start and end date in df_adjustOHLC.loc[] to see a graph in specific peroid.
+Since we add __%mathplotlib ipympl__ to the codes, it will show toolbar under the chart so you can zoom and pan the CandleStick chart. And you can also change start and end date in df_adjustOHLC.loc[] to see a graph in difference peroid of times.
 
 
 ```python
-%matplotlib notebook
+%matplotlib ipympl
 
-dfPlot=df.loc['2018-01-01':datetime.now(),:]
+dfPlot=df.loc['2024-01-01':datetime.now(),:]
 pandas_candlestick_ohlc(dfPlot,item_name=ricname)
 ```
 It will shows the following CandleStick Chart.
@@ -485,7 +496,7 @@ Basically, pandas provides functionality for easily computing a simple moving av
 ```python
 import numpy as np
 df["SMA20d"] = np.round(df["Last"].rolling(window = 20, center = False).mean(), 2)
-dfPlot=df.loc['2018-01-01':datetime.now(),:]
+dfPlot=df.loc['2023-01-01':datetime.now(),:]
 pandas_candlestick_ohlc(dfPlot, otherseries = "SMA20d",item_name=ricname)
 ```
 And below is CandleStick Chart with SMA 20 day line graph.
@@ -503,14 +514,14 @@ df["SMA20d"] = np.round(df["Last"].rolling(window = 20, center = False).mean(), 
 df["SMA50d"] = np.round(df["Last"].rolling(window=50, center = False).mean(), 2)
 df["SMA75d"] = np.round(df["Last"].rolling(window=75, center = False).mean(), 2)
 df["SMA200d"] = np.round(df["Last"].rolling(window=200, center = False).mean(), 2)
-dfPlot=df.loc['2018-01-01':'2019-08-05',:]
+dfPlot=df.loc['2023-01-01':'2024-08-05',:]
 dfPlot.reindex()
 pandas_candlestick_ohlc(dfPlot, otherseries = ["SMA20d","SMA50d","SMA75d","SMA200d"],item_name=ricname)
 ```
 And below is a new graph with multi-type SMA lines graph.
 ![candlestickmultisma](./images/candlestickwithvolumeaverage2.JPG)
 
-There are other types of Moving Average that user can apply with the dataframe to calculate the average value. Many of python open-source package provide the method to calculate MA and [Ta-Lib](https://mrjbq7.github.io/ta-lib/) is one of the libraries which support the calculation and you may try it with the data from the Eikon Data API. However, we do not cover in this example.
+There are other types of Moving Average that user can apply with the dataframe to calculate the average value. Many of python open-source package provide the method to calculate MA and [Ta-Lib](https://mrjbq7.github.io/ta-lib/) is one of the libraries which support the calculation and you may try it with the data from the [LSEG Data Library for Python](https://developers.lseg.com/en/api-catalog/lseg-data-platform/lseg-data-library-for-python). However, we do not cover in this example.
 
 ## Summary
 
@@ -518,7 +529,7 @@ This example provides a step to use Python to retrieve an End of Day Time Series
 
 ## References
 
-* [Refinitiv Tick History (RTH)](https://developers.refinitiv.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api)
+* [LSEG Tick History](https://developers.lseg.com/en/api-catalog/refinitiv-tick-history/refinitiv-tick-history-rth-rest-api)
 * [Tornado Web Framework](https://www.tornadoweb.org/en/stable/guide.html)
 * [CandleStick chart what is it?](https://www.investopedia.com/trading/candlestick-charting-what-is-it/)
 * [What Is a Moving Average Article.](https://www.investopedia.com/terms/m/movingaverage.asp)
