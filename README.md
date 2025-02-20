@@ -1,4 +1,4 @@
-# Generate CandleStick chart using Tick Historical End of Day data
+# Generate CandleStick chart using Tick History End of Day data
 
 ## Overview
 
